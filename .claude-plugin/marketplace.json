@@ -1,19 +1,19 @@
 {
-  "name": "superpowers-dev",
-  "description": "Development marketplace for Superpowers core skills library",
+  "name": "orbital-superpowers",
+  "description": "Orbital Witness fork of Superpowers core skills library",
   "owner": {
-    "name": "Jesse Vincent",
-    "email": "jesse@fsck.com"
+    "name": "Orbital Witness",
+    "email": "toby.dickinson-williams@orbital.tech"
   },
   "plugins": [
     {
-      "name": "superpowers",
-      "description": "Core skills library for Claude Code: TDD, debugging, collaboration patterns, and proven techniques",
-      "version": "4.0.3",
+      "name": "orbital-superpowers",
+      "description": "Core skills library for Claude Code: TDD, debugging, collaboration patterns, and proven techniques (Orbital Witness fork)",
+      "version": "4.1.2",
       "source": "./",
       "author": {
-        "name": "Jesse Vincent",
-        "email": "jesse@fsck.com"
+        "name": "Orbital Witness",
+        "email": "toby.dickinson-williams@orbital.tech"
       }
     }
   ]

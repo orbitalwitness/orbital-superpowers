@@ -1,13 +1,13 @@
 {
-  "name": "superpowers",
-  "description": "Core skills library for Claude Code: TDD, debugging, collaboration patterns, and proven techniques",
-  "version": "4.1.1",
+  "name": "orbital-superpowers",
+  "description": "Core skills library for Claude Code: TDD, debugging, collaboration patterns, and proven techniques (Orbital Witness fork)",
+  "version": "4.1.2",
   "author": {
-    "name": "Jesse Vincent",
-    "email": "jesse@fsck.com"
+    "name": "Orbital Witness",
+    "email": "toby.dickinson-williams@orbital.tech"
   },
-  "homepage": "https://github.com/obra/superpowers",
-  "repository": "https://github.com/obra/superpowers",
+  "homepage": "https://github.com/orbitalwitness/orbital-superpowers",
+  "repository": "https://github.com/orbitalwitness/orbital-superpowers",
   "license": "MIT",
-  "keywords": ["skills", "tdd", "debugging", "collaboration", "best-practices", "workflows"]
+  "keywords": ["skills", "tdd", "debugging", "collaboration", "best-practices", "workflows", "orbital-witness"]
 }
