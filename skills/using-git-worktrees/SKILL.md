@@ -74,15 +74,27 @@ No .gitignore verification needed - outside project entirely.
 
 ## Creation Steps
 
-### 1. Detect Project Name
+### 1. Detect Project Name and Main Branch
 
 ```bash
 project=$(basename "$(git rev-parse --show-toplevel)")
+
+# Detect main branch (check CLAUDE.md first, then common names)
+main_branch=$(grep -i "main.*branch" CLAUDE.md 2>/dev/null | grep -oE '(main|master|staging|develop)' | head -1)
+if [ -z "$main_branch" ]; then
+  # Auto-detect from remote
+  main_branch=$(git remote show origin 2>/dev/null | grep "HEAD branch" | cut -d: -f2 | tr -d ' ')
+fi
 ```
 
-### 2. Create Worktree
+### 2. Fetch Latest and Create Worktree
+
+**CRITICAL: Always fetch before creating worktree to ensure you have the latest code.**
 
 ```bash
+# Fetch latest from origin
+git fetch origin
+
 # Determine full path
 case $LOCATION in
   .worktrees|worktrees)
@@ -93,10 +105,12 @@ case $LOCATION in
     ;;
 esac
 
-# Create worktree with new branch
-git worktree add "$path" -b "$BRANCH_NAME"
+# Create worktree with new branch FROM origin's main branch
+git worktree add "$path" -b "$BRANCH_NAME" "origin/$main_branch"
 cd "$path"
 ```
+
+**Why fetch first?** Local branches may be stale. Creating from `origin/<main_branch>` ensures the worktree starts with the latest remote code.
 
 ### 3. Run Project Setup
 
@@ -145,15 +159,22 @@ Ready to implement <feature-name>
 
 | Situation | Action |
 |-----------|--------|
+| Before creating worktree | Always `git fetch origin` first |
 | `.worktrees/` exists | Use it (verify ignored) |
 | `worktrees/` exists | Use it (verify ignored) |
 | Both exist | Use `.worktrees/` |
 | Neither exists | Check CLAUDE.md → Ask user |
 | Directory not ignored | Add to .gitignore + commit |
+| Creating branch | Use `origin/<main_branch>` as base |
 | Tests fail during baseline | Report failures + ask |
 | No package.json/Cargo.toml | Skip dependency install |
 
 ## Common Mistakes
+
+### Creating worktree from local branch without fetching
+
+- **Problem:** Local branch may be stale, worktree starts with outdated code
+- **Fix:** Always `git fetch origin` first, then create from `origin/<main_branch>`
 
 ### Skipping ignore verification
 
@@ -182,7 +203,9 @@ You: I'm using the using-git-worktrees skill to set up an isolated workspace.
 
 [Check .worktrees/ - exists]
 [Verify ignored - git check-ignore confirms .worktrees/ is ignored]
-[Create worktree: git worktree add .worktrees/auth -b feature/auth]
+[Fetch latest: git fetch origin]
+[Detect main branch: staging]
+[Create worktree: git worktree add .worktrees/auth -b feature/auth origin/staging]
 [Run npm install]
 [Run npm test - 47 passing]
 
@@ -194,6 +217,7 @@ Ready to implement auth feature
 ## Red Flags
 
 **Never:**
+- Create worktree from local branch without fetching first
 - Create worktree without verifying it's ignored (project-local)
 - Skip baseline test verification
 - Proceed with failing tests without asking
@@ -201,6 +225,8 @@ Ready to implement auth feature
 - Skip CLAUDE.md check
 
 **Always:**
+- Fetch from origin before creating worktree
+- Create worktree from `origin/<main_branch>`, not local branch
 - Follow directory priority: existing > CLAUDE.md > ask
 - Verify directory is ignored for project-local
 - Auto-detect and run project setup
