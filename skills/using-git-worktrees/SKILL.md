@@ -117,8 +117,9 @@ cd "$path"
 Auto-detect and run appropriate setup:
 
 ```bash
-# Node.js
-if [ -f package.json ]; then npm install; fi
+# Node.js (prefer yarn over npm)
+if [ -f yarn.lock ]; then yarn install; fi
+if [ -f package-lock.json ]; then npm install; fi
 
 # Rust
 if [ -f Cargo.toml ]; then cargo build; fi
@@ -137,7 +138,7 @@ Run tests to ensure worktree starts clean:
 
 ```bash
 # Examples - use project-appropriate command
-npm test
+yarn test  # or npm test if no yarn.lock
 cargo test
 pytest
 go test ./...
@@ -206,8 +207,8 @@ You: I'm using the using-git-worktrees skill to set up an isolated workspace.
 [Fetch latest: git fetch origin]
 [Detect main branch: staging]
 [Create worktree: git worktree add .worktrees/auth -b feature/auth origin/staging]
-[Run npm install]
-[Run npm test - 47 passing]
+[Run yarn install]
+[Run yarn test - 47 passing]
 
 Worktree ready at /Users/jesse/myproject/.worktrees/auth
 Tests passing (47 tests, 0 failures)
