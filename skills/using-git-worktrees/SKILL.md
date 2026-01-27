@@ -74,20 +74,13 @@ No .gitignore verification needed - outside project entirely.
 
 ## Creation Steps
 
-### 1. Detect Project Name and Main Branch
+### 1. Detect Project Name
 
 ```bash
 project=$(basename "$(git rev-parse --show-toplevel)")
-
-# Detect main branch (check CLAUDE.md first, then common names)
-main_branch=$(grep -i "main.*branch" CLAUDE.md 2>/dev/null | grep -oE '(main|master|staging|develop)' | head -1)
-if [ -z "$main_branch" ]; then
-  # Auto-detect from remote
-  main_branch=$(git remote show origin 2>/dev/null | grep "HEAD branch" | cut -d: -f2 | tr -d ' ')
-fi
 ```
 
-### 2. Fetch Latest and Create Worktree
+### 2. Fetch Latest, Create Worktree, and Push Branch
 
 **CRITICAL: Always fetch before creating worktree to ensure you have the latest code.**
 
@@ -105,12 +98,17 @@ case $LOCATION in
     ;;
 esac
 
-# Create worktree with new branch FROM origin's main branch
-git worktree add "$path" -b "$BRANCH_NAME" "origin/$main_branch"
+# Create worktree with new branch FROM origin/staging
+git worktree add "$path" -b "$BRANCH_NAME" "origin/staging"
 cd "$path"
+
+# Push the new branch to origin immediately
+git push -u origin "$BRANCH_NAME"
 ```
 
-**Why fetch first?** Local branches may be stale. Creating from `origin/<main_branch>` ensures the worktree starts with the latest remote code.
+**Why fetch first?** Local branches may be stale. Creating from `origin/staging` ensures the worktree starts with the latest remote code.
+
+**Why push immediately?** Pushing the branch right away ensures the remote tracking is set up and the branch exists on origin for CI/CD and collaboration.
 
 ### 3. Run Project Setup
 
@@ -152,6 +150,7 @@ go test ./...
 
 ```
 Worktree ready at <full-path>
+Branch pushed to origin/<branch-name>
 Tests passing (<N> tests, 0 failures)
 Ready to implement <feature-name>
 ```
@@ -166,7 +165,8 @@ Ready to implement <feature-name>
 | Both exist | Use `.worktrees/` |
 | Neither exists | Check CLAUDE.md → Ask user |
 | Directory not ignored | Add to .gitignore + commit |
-| Creating branch | Use `origin/<main_branch>` as base |
+| Creating branch | Use `origin/staging` as base |
+| After creating worktree | Push branch to origin immediately |
 | Tests fail during baseline | Report failures + ask |
 | No package.json/Cargo.toml | Skip dependency install |
 
@@ -175,7 +175,7 @@ Ready to implement <feature-name>
 ### Creating worktree from local branch without fetching
 
 - **Problem:** Local branch may be stale, worktree starts with outdated code
-- **Fix:** Always `git fetch origin` first, then create from `origin/<main_branch>`
+- **Fix:** Always `git fetch origin` first, then create from `origin/staging`
 
 ### Skipping ignore verification
 
@@ -205,12 +205,13 @@ You: I'm using the using-git-worktrees skill to set up an isolated workspace.
 [Check .worktrees/ - exists]
 [Verify ignored - git check-ignore confirms .worktrees/ is ignored]
 [Fetch latest: git fetch origin]
-[Detect main branch: staging]
 [Create worktree: git worktree add .worktrees/auth -b feature/auth origin/staging]
+[Push branch: git push -u origin feature/auth]
 [Run yarn install]
 [Run yarn test - 47 passing]
 
 Worktree ready at /Users/jesse/myproject/.worktrees/auth
+Branch pushed to origin/feature/auth
 Tests passing (47 tests, 0 failures)
 Ready to implement auth feature
 ```
@@ -220,6 +221,7 @@ Ready to implement auth feature
 **Never:**
 - Create worktree from local branch without fetching first
 - Create worktree without verifying it's ignored (project-local)
+- Skip pushing the new branch to origin
 - Skip baseline test verification
 - Proceed with failing tests without asking
 - Assume directory location when ambiguous
@@ -227,7 +229,8 @@ Ready to implement auth feature
 
 **Always:**
 - Fetch from origin before creating worktree
-- Create worktree from `origin/<main_branch>`, not local branch
+- Create worktree from `origin/staging`, not local branch
+- Push new branch to origin immediately after creation
 - Follow directory priority: existing > CLAUDE.md > ask
 - Verify directory is ignored for project-local
 - Auto-detect and run project setup
