@@ -35,9 +35,11 @@ Start by understanding the current project context, then ask questions one at a 
 ## After the Design
 
 **Documentation:**
-- Write the validated design to `docs/plans/YYYY-MM-DD-<topic>-design.md`
+- Ask the user where to save the design using AskUserQuestion:
+  1. **Linear** — Create a Linear issue with the design in the description
+  2. **JIRA** — Create a JIRA ticket with the design in the description
+  3. **Committed** — Write to `docs/plans/YYYY-MM-DD-<topic>-design.md` and commit to git
 - Use elements-of-style:writing-clearly-and-concisely skill if available
-- Commit the design document to git
 
 **Implementation (if continuing):**
 - Ask: "Ready to set up for implementation?"
